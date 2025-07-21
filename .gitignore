@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+app/venv38/
+venv/
+ENV/
+env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+
+# VSCode settings (optional)
+.vscode/
+
+# Python egg info
+*.egg-info/
+dist/
+build/
+
+# Model files (optional, if you don't want to share them)
+models/
+app/models/
+
+# Data files (optional, if you don't want to share them)
+Data-processed/
+Data-raw/
+app/Data/

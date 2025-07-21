@@ -1,0 +1,341 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    overflow-x: hidden;
+    /* Remove background: #1a1a1a; */
+  }
+  
+  /* Background Image Layer - Lowest Z-Index */
+  .hero-background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-image: url('{{ url_for("static", filename="images/hero_botanical_bg.jpeg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    z-index: 1;
+  }
+  /* Background overlay for better readability */
+  .hero-background-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 2;
+  }
+  
+  .fertilizer-container {
+    position: relative;
+    z-index: 10;
+    margin: 6rem auto;
+    max-width: 900px;
+    padding: 2rem;
+    min-height: calc(100vh - 12rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .fertilizer-card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border-radius: 36px;
+    padding: 4rem 4rem;
+    box-shadow: 
+      0 20px 60px 0 rgba(0, 0, 0, 0.30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    z-index: 15;
+    width: 100%;
+    max-width: 700px;
+    min-width: 350px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .fertilizer-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, 
+      rgba(16, 185, 129, 0.08) 0%, 
+      rgba(255, 255, 255, 0.04) 40%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    animation: pulseGlow 6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      opacity: 0.15;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    50% {
+      opacity: 0.3;
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  }
+  
+  .fertilizer-details-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .result-section {
+    margin-bottom: 2.2rem;
+    width: 100%;
+    max-width: 700px;
+    padding: 0 1.5rem;
+  }
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  
+  .section-title i {
+    font-size: 1.3rem;
+    color: #7ee787;
+    filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.18));
+  }
+  
+  .section-content {
+    font-size: 1.08rem;
+    font-weight: 400;
+    color: #fff;
+    background: rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    margin-bottom: 0.2rem;
+    word-break: break-word;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .crop-name {
+    color: white;
+    font-weight: 600;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+  }
+  
+  .nutrient-values {
+    color: #fff;
+    font-size: 1.08rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .nutrient-label {
+    color: #7ee787;
+    font-weight: 600;
+    margin-right: 0.3rem;
+  }
+  
+  .recommendation-text {
+    color: white;
+    font-size: 1.08rem;
+    font-weight: 400;
+    opacity: 0.92;
+    white-space: pre-line;
+  }
+  
+  @media (max-width: 900px) {
+    .fertilizer-card {
+      padding: 2rem 1rem;
+    }
+    .result-section {
+      padding: 0 0.5rem;
+    }
+  }
+</style>
+
+<div class="hero-background-image"></div>
+
+<div class="fertilizer-container">
+  <div class="fertilizer-card" role="main" aria-label="Fertilizer recommendation result">
+    <div class="fertilizer-glow"></div>
+    <div class="fertilizer-details-section">
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-leaf"></i>
+          <span>Crop</span>
+        </div>
+        <div class="section-content crop-name">
+          {{ crop_name if crop_name is defined else 'N/A' }}
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-flask"></i>
+          <span>Soil Nutrients</span>
+        </div>
+        <div class="section-content nutrient-values">
+          <span class="nutrient-label">N:</span> {{ N }}
+          <span class="nutrient-label">P:</span> {{ P }}
+          <span class="nutrient-label">K:</span> {{ K }}
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-info-circle"></i>
+          <span>Recommendation</span>
+        </div>
+        <div class="section-content recommendation-text">
+          {{ recommendation|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyToClipboard() {
+  const text = document.querySelector('.recommendation-text').textContent;
+  
+  if (navigator.clipboard && window.isSecureContext) {
+    // Use modern clipboard API
+    navigator.clipboard.writeText(text).then(() => {
+      showNotification('✅ Recommendation copied to clipboard!');
+    }).catch(() => {
+      fallbackCopyTextToClipboard(text);
+    });
+  } else {
+    // Fallback method
+    fallbackCopyTextToClipboard(text);
+  }
+}
+
+function fallbackCopyTextToClipboard(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.top = "0";
+  textArea.style.left = "0";
+  textArea.style.position = "fixed";
+  textArea.style.opacity = "0";
+  
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  
+  try {
+    document.execCommand('copy');
+    showNotification('✅ Recommendation copied to clipboard!');
+  } catch (err) {
+    showNotification('❌ Failed to copy to clipboard');
+  }
+  
+  document.body.removeChild(textArea);
+}
+
+function showNotification(message) {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 1000;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remove notification after 3 seconds
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+// Add CSS for notification animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+`;
+
+</script>
+
+{% endblock %}

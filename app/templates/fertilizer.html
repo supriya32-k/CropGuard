@@ -1,0 +1,629 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html body {
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-image: url('{{ url_for("static", filename="images/hero_botanical_bg.jpeg") }}');
+        position: relative;
+        overflow-x: hidden;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    /* Background overlay for better contrast */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, 
+            rgba(16, 185, 129, 0.1) 0%, 
+            rgba(34, 197, 94, 0.15) 25%,
+            rgba(59, 130, 246, 0.1) 50%,
+            rgba(139, 69, 19, 0.1) 75%,
+            rgba(22, 163, 74, 0.15) 100%
+        );
+        backdrop-filter: blur(1px);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Animated floating particles */
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 2%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 2%),
+            radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.06) 0%, transparent 2%),
+            radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 2%),
+            radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.08) 0%, transparent 2%);
+        animation: floatingParticles 25s ease-in-out infinite alternate;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    @keyframes floatingParticles {
+        0% { transform: translateX(-10px) translateY(-5px) rotate(0deg); }
+        100% { transform: translateX(10px) translateY(5px) rotate(180deg); }
+    }
+
+    .main-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        position: relative;
+        z-index: 10;
+    }
+
+    h2 {
+        font-size: clamp(1.8rem, 4vw, 2.5rem) !important;
+        font-weight: 700 !important;
+        color: white !important;
+        text-align: center !important;
+        margin: 0 0 3rem 0 !important;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        letter-spacing: -0.02em !important;
+        animation: slideDown 0.8s ease-out !important;
+        position: relative;
+        z-index: 15;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.12) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        border-radius: 24px !important;
+        padding: 3rem !important;
+        width: 100% !important;
+        max-width: 450px !important;
+        height: auto !important;
+        margin: 0 auto !important;
+        color: white !important;
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+        animation: slideUp 0.8s ease-out 0.2s both !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        position: relative;
+        z-index: 20;
+        overflow: hidden;
+    }
+
+    /* Glassmorphic shine effect */
+    .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.8s ease-in-out;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .form-container:hover::before {
+        left: 100%;
+    }
+
+    .form-container:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    form {
+        position: relative;
+        z-index: 25;
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem !important;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out forwards;
+        position: relative;
+        z-index: 30;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.4s; }
+    .form-group:nth-child(2) { animation-delay: 0.5s; }
+    .form-group:nth-child(3) { animation-delay: 0.6s; }
+    .form-group:nth-child(4) { animation-delay: 0.7s; }
+
+    .form-group label {
+        display: block !important;
+        color: rgba(255, 255, 255, 0.95) !important;
+        font-weight: 600 !important;
+        margin-bottom: 0.5rem !important;
+        font-size: 0.95rem !important;
+        letter-spacing: 0.01em !important;
+        transition: all 0.3s ease !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 35;
+    }
+
+    .form-group.focused label,
+    .form-group.has-value label {
+        color: rgba(255, 255, 255, 1) !important;
+        transform: translateY(-2px) !important;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .form-control {
+        width: 100% !important;
+        padding: 1rem 1.2rem !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 12px !important;
+        color: white !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        outline: none !important;
+        position: relative;
+        z-index: 40;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important; /* Makes text visible on any background */
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+        transition: opacity 0.3s ease !important;
+    }
+
+    .form-control:focus {
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.15),
+            0 0 0 3px rgba(255, 255, 255, 0.1),
+            inset 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .form-control:focus::placeholder {
+        opacity: 0.8 !important;
+    }
+
+    .form-control:hover {
+        border-color: rgba(255, 255, 255, 0.3) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    /* --- Definitive Dropdown Fix --- */
+    /* The glass effect is removed from the dropdown and replaced with a solid
+    /* background to fix a persistent browser rendering bug. */
+    select.form-control {
+        width: 100% !important;
+        border-radius: 12px !important;
+        font-size: 1.1rem !important;
+        /* Remove all other custom styles for dropdown */
+    }
+
+
+    select.form-control option {
+        background: #2c3e34 !important; /* A deep, earthy green, matching the theme */
+        color: rgba(255, 255, 255, 0.95) !important;
+        padding: 0.8rem 1rem !important; /* Increased padding for better spacing */
+        border: none !important;
+    }
+
+    /* Style the crop dropdown to match the input boxes */
+    select#crop {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 500;
+        outline: none;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-top: 0.2rem;
+        margin-bottom: 0.2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    select#crop:focus {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.1), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    select#crop option {
+        background: #224b33;
+        color: white;
+    }
+
+    .d-flex {
+        display: flex !important;
+        position: relative;
+        z-index: 50;
+    }
+
+    .justify-content-center {
+        justify-content: center !important;
+    }
+
+    .btn {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+        font-weight: 700 !important;
+        font-size: 1.1rem !important;
+        padding: 1rem 2.5rem !important;
+        border-radius: 16px !important;
+        cursor: pointer !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        width: 200px !important;
+        height: 60px !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+        position: relative !important;
+        overflow: hidden !important;
+        margin-top: 2rem !important;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out 0.8s forwards;
+        z-index: 60;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
+        transition: left 0.5s !important;
+        z-index: 1;
+    }
+
+    .btn-text {
+        position: relative;
+        z-index: 2;
+    }
+
+    .btn:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4),
+            0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    .btn:hover::before {
+        left: 100% !important;
+    }
+
+    .btn:active {
+        transform: translateY(-1px) !important;
+        transition: transform 0.1s !important;
+    }
+
+    .btn:disabled {
+        opacity: 0.7 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Input validation states */
+    .form-control:invalid:not(:placeholder-shown) {
+        border-color: rgba(239, 68, 68, 0.5) !important;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(239, 68, 68, 0.1) !important;
+    }
+
+    /* Responsive design */
+    @media (max-width: 640px) {
+        .form-container {
+            padding: 2rem 1.5rem !important;
+            margin: 1rem !important;
+            border-radius: 20px !important;
+            max-width: 90% !important;
+        }
+
+        h2 {
+            font-size: 1.8rem !important;
+            margin-bottom: 2rem !important;
+        }
+
+        .btn {
+            width: 100% !important;
+            padding: 1.2rem 2rem !important;
+        }
+
+        .main-wrapper {
+            padding: 1rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-container {
+            padding: 1.5rem 1rem !important;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem !important;
+        }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .form-container {
+            background: rgba(255, 255, 255, 0.25) !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: 2px solid rgba(255, 255, 255, 0.4) !important;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+        
+        body::before, body::after {
+            animation: none !important;
+        }
+    }
+</style>
+
+<!--Form Section-->
+<div class="main-wrapper">
+    <h2><b>Get informed advice on fertilizer based on soil</b></h2>
+    
+    <div class="form-container">
+        <form method="POST" action="{{ url_for('fert_recommend') }}" id="fertilizerForm">
+            <div class="form-group">
+                <label for="Nitrogen"><b>Nitrogen</b></label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="Nitrogen"
+                    name="nitrogen"
+                    placeholder="Enter the value (example:50)"
+                    min="0"
+                    max="200"
+                    step="0.1"
+                    required
+                />
+            </div>
+            
+            <div class="form-group">
+                <label for="Phosphorous"><b>Phosphorous</b></label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="Phosphorous"
+                    name="phosphorous"
+                    placeholder="Enter the value (example:50)"
+                    min="0"
+                    max="200"
+                    step="0.1"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="Pottasium"><b>Potassium</b></label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="Pottasium"
+                    name="pottasium"
+                    placeholder="Enter the value (example:50)"
+                    min="0"
+                    max="200"
+                    step="0.1"
+                    required
+                />
+            </div>
+            
+            <div class="form-group">
+                <label for="crop"><b>Crop you want to grow</b></label>
+                <select name="cropname" id="crop" required>
+                    <option value="" disabled>Select crop</option>
+                    <option value="rice">Rice</option>
+                    <option value="maize">Maize</option>
+                    <option value="chickpea">Chickpea</option>
+                    <option value="kidneybeans">Kidney Beans</option>
+                    <option value="pigeonpeas">Pigeon Peas</option>
+                    <option value="mothbeans">Moth Beans</option>
+                    <option value="mungbean">Mung Bean</option>
+                    <option value="blackgram">Black Gram</option>
+                    <option value="lentil">Lentil</option>
+                    <option value="pomegranate">Pomegranate</option>
+                    <option value="banana">Banana</option>
+                    <option value="mango">Mango</option>
+                    <option value="grapes">Grapes</option>
+                    <option value="watermelon">Watermelon</option>
+                    <option value="muskmelon">Muskmelon</option>
+                    <option value="apple">Apple</option>
+                    <option value="orange">Orange</option>
+                    <option value="papaya">Papaya</option>
+                    <option value="coconut">Coconut</option>
+                    <option value="cotton">Cotton</option>
+                    <option value="jute">Jute</option>
+                    <option value="coffee">Coffee</option>
+                </select>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-info" id="predictBtn">
+                    <span class="btn-text">Predict</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('fertilizerForm');
+    const inputs = form.querySelectorAll('.form-control');
+    const submitBtn = document.getElementById('predictBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    
+    // Enhanced form interactions
+    inputs.forEach(input => {
+        // Focus and blur effects
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+
+        // Real-time validation and styling
+        input.addEventListener('input', function() {
+            if (this.value) {
+                this.parentElement.classList.add('has-value');
+            } else {
+                this.parentElement.classList.remove('has-value');
+            }
+        });
+
+        // Enhanced number input validation
+        if (input.type === 'number') {
+            input.addEventListener('keypress', function(e) {
+                // Allow: backspace, delete, tab, escape, enter, decimal point
+                if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                    (e.keyCode === 65 && e.ctrlKey === true) ||
+                    (e.keyCode === 67 && e.ctrlKey === true) ||
+                    (e.keyCode === 86 && e.ctrlKey === true) ||
+                    (e.keyCode === 88 && e.ctrlKey === true) ||
+                    // Allow: home, end, left, right
+                    (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+
+    // Form submission with loading state
+    form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        btnText.innerHTML = 'Processing...';
+        submitBtn.style.background = 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)';
+        submitBtn.style.opacity = '0.7';
+    });
+
+    // Add subtle parallax effect on scroll (only on larger screens)
+    if (window.innerWidth > 768) {
+        let ticking = false;
+        
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const container = document.querySelector('.form-container');
+            const rate = scrolled * -0.1;
+            
+            container.style.transform = `translateY(${rate}px)`;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        });
+    }
+
+    // Initialize form state
+    inputs.forEach(input => {
+        if (input.value) {
+            input.parentElement.classList.add('has-value');
+        }
+    });
+});
+</script>
+
+{% endblock %}

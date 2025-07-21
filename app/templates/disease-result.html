@@ -1,0 +1,657 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* Background Image Layer - Lowest Z-Index */
+  .hero-background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-image: url('{{ url_for("static", filename="images/hero_botanical_bg.jpeg") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    z-index: 1;
+  }
+
+  /* Background overlay for better readability */
+  .hero-background-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 2;
+  }
+
+  /* Subtle animated overlay patterns */
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 25% 25%, rgba(76, 175, 80, 0.08) 0%, transparent 60%),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.06) 0%, transparent 60%),
+      radial-gradient(circle at 50% 10%, rgba(76, 175, 80, 0.05) 0%, transparent 50%);
+    z-index: 3;
+    pointer-events: none;
+  }
+  
+  /* Animated background shapes */
+  .background-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 4;
+  }
+  
+  .shape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 50%;
+    animation: float-shapes 20s infinite ease-in-out;
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .shape:nth-child(1) {
+    width: 120px;
+    height: 120px;
+    top: 15%;
+    left: 8%;
+    animation-delay: -3s;
+  }
+  
+  .shape:nth-child(2) {
+    width: 80px;
+    height: 80px;
+    top: 65%;
+    right: 12%;
+    animation-delay: -7s;
+  }
+  
+  .shape:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    bottom: 25%;
+    left: 15%;
+    animation-delay: -11s;
+  }
+
+  .shape:nth-child(4) {
+    width: 60px;
+    height: 60px;
+    top: 40%;
+    right: 25%;
+    animation-delay: -15s;
+  }
+  
+  /* Main Content Container */
+  .prediction-container {
+    position: relative;
+    z-index: 10;
+    margin: 6rem auto;
+    max-width: 900px;
+    padding: 2rem;
+    min-height: calc(100vh - 12rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: slideInFromBottom 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  /* Main Glassmorphic Prediction Card */
+  .prediction-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border-radius: 36px;
+    padding: 4rem 4rem;
+    box-shadow: 
+      0 20px 60px 0 rgba(0, 0, 0, 0.30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    z-index: 15;
+    width: 100%;
+    max-width: 1100px;
+    min-width: 350px;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Enhanced border glow effect */
+  .prediction-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(76, 175, 80, 0.35) 25%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(76, 175, 80, 0.3) 75%,
+      rgba(255, 255, 255, 0.25) 100%
+    );
+    background-size: 400% 400%;
+    border-radius: 34px;
+    z-index: -1;
+    animation: gradientShift 12s ease infinite;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  
+  .prediction-card:hover::before {
+    opacity: 1;
+  }
+  
+  /* Shimmer effect */
+  .prediction-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255, 255, 255, 0.2) 30%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.2) 70%,
+      transparent 100%
+    );
+    transition: left 1s ease-in-out;
+    pointer-events: none;
+  }
+  
+  .prediction-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 
+      0 30px 90px 0 rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .prediction-card:hover::after {
+    left: 100%;
+  }
+  
+  /* Result Text Styling */
+  .prediction-text {
+    color: #ffffff;
+    font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+    font-weight: 500;
+    line-height: 1.7;
+    text-align: center;
+    text-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      0 4px 16px rgba(0, 0, 0, 0.13);
+    letter-spacing: -0.01em;
+    opacity: 0;
+    animation: fadeInScale 1.8s ease-out 0.6s forwards;
+    position: relative;
+    z-index: 20;
+    margin: 0;
+    padding: 1.2rem 1.5rem;
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  /* Highlight for disease names or important terms */
+  .prediction-text .highlight {
+    background: linear-gradient(135deg, 
+      rgba(76, 175, 80, 0.3) 0%, 
+      rgba(76, 175, 80, 0.2) 100%
+    );
+    padding: 0.2em 0.5em;
+    border-radius: 8px;
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  }
+  
+  .prediction-text::selection {
+    background: rgba(76, 175, 80, 0.3);
+    color: #ffffff;
+  }
+  
+  /* Subtle pulsing glow effect */
+  .prediction-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, 
+      rgba(76, 175, 80, 0.08) 0%, 
+      rgba(255, 255, 255, 0.04) 40%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    animation: pulseGlow 6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Back Button Styling */
+  .back-button {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    z-index: 25;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 0.8rem 1.2rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .back-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    text-decoration: none;
+  }
+
+  .back-button i {
+    font-size: 1rem;
+  }
+  
+  /* Animation Keyframes */
+  @keyframes slideInFromBottom {
+    from {
+      opacity: 0;
+      transform: translateY(60px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.9) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes float-shapes {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg) scale(1);
+      opacity: 0.3;
+    }
+    33% {
+      transform: translateY(-30px) rotate(120deg) scale(1.05);
+      opacity: 0.5;
+    }
+    66% {
+      transform: translateY(-15px) rotate(240deg) scale(0.95);
+      opacity: 0.4;
+    }
+  }
+  
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      opacity: 0.15;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    50% {
+      opacity: 0.3;
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .prediction-container {
+      margin: 4rem 1rem;
+      padding: 1rem;
+    }
+    
+    .prediction-card {
+      padding: 3rem 2rem;
+      border-radius: 28px;
+    }
+    
+    .prediction-text {
+      font-size: 1.4rem;
+      line-height: 1.5;
+      padding: 0.5rem;
+    }
+
+    .back-button {
+      top: 1rem;
+      left: 1rem;
+      padding: 0.7rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .shape:nth-child(1) { width: 80px; height: 80px; }
+    .shape:nth-child(2) { width: 60px; height: 60px; }
+    .shape:nth-child(3) { width: 70px; height: 70px; }
+    .shape:nth-child(4) { width: 50px; height: 50px; }
+  }
+  
+  @media (max-width: 480px) {
+    .prediction-card {
+      padding: 2.5rem 1.5rem;
+      border-radius: 24px;
+    }
+    
+    .prediction-text {
+      font-size: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .back-button {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.85rem;
+    }
+  }
+  
+  /* Enhanced accessibility */
+  .prediction-card:focus-within {
+    outline: 3px solid rgba(76, 175, 80, 0.6);
+    outline-offset: 4px;
+  }
+
+  .back-button:focus {
+    outline: 2px solid rgba(76, 175, 80, 0.6);
+    outline-offset: 2px;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    .prediction-card:hover {
+      transform: none;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .background-shapes,
+    .prediction-glow,
+    .back-button {
+      display: none;
+    }
+    
+    .prediction-card {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: none;
+      border: 1px solid #cccccc;
+    }
+    
+    .prediction-text {
+      color: #000000;
+      text-shadow: none;
+    }
+  }
+
+  .result-section {
+    margin-bottom: 2.2rem;
+    width: 100%;
+    max-width: 900px;
+    padding: 0 1.5rem;
+  }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.01em;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .section-title i {
+    font-size: 1.3rem;
+    color: #7ee787;
+    filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.18));
+  }
+  .section-content {
+    font-size: 1.08rem;
+    font-weight: 400;
+    color: #fff;
+    background: rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    margin-bottom: 0.2rem;
+    word-break: break-word;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .crop-name {
+    color: white;
+    font-weight: 600;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+  }
+  .disease-name {
+    color: white;
+    font-weight: 600;
+    font-size: 1.13rem;
+    letter-spacing: 0.02em;
+  }
+  .cause-text {
+    color: white;
+    font-size: 1.05rem;
+    font-weight: 400;
+    opacity: 0.92;
+    white-space: pre-line;
+  }
+  .prevention-text {
+    color: white;
+    font-size: 1.05rem;
+    font-weight: 400;
+    opacity: 0.92;
+  }
+  @media (max-width: 600px) {
+    .result-section { padding: 0 0.3rem; }
+    .section-content { font-size: 0.98rem; padding: 0.8rem 0.7rem; }
+    .section-title { font-size: 1rem; }
+  }
+  .prediction-flex {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 3rem 3rem;
+  }
+  .prediction-image-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+    max-width: 320px;
+    flex: 0 0 260px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+    overflow: hidden;
+    margin-right: 0.5rem;
+  }
+  .prediction-leaf-image {
+    width: 100%;
+    height: auto;
+    max-width: 260px;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+    background: #222;
+  }
+  .prediction-image-top {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2.2rem;
+  }
+  .prediction-leaf-image-top {
+    width: auto;
+    max-width: 320px;
+    max-height: 260px;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+    background: #222;
+    object-fit: contain;
+    border: 2px solid rgba(255,255,255,0.13);
+  }
+  .prediction-details-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (max-width: 900px) {
+    .prediction-card {
+      padding: 2rem 1rem;
+    }
+    .prediction-image-top {
+      margin-bottom: 1.2rem;
+    }
+    .prediction-leaf-image-top {
+      max-width: 90vw;
+      max-height: 180px;
+    }
+  }
+</style>
+
+<div class="hero-background-image"></div>
+<div class="background-overlay"></div>
+
+<div class="background-shapes">
+  <div class="shape"></div>
+  <div class="shape"></div>
+  <div class="shape"></div>
+  <div class="shape"></div>
+</div>
+
+<a href="{{ url_for('home') }}" class="back-button">
+  <i class="fa fa-arrow-left"></i>
+  Back to Upload
+</a>
+
+<div class="prediction-container">
+  <div class="prediction-card" role="main" aria-label="Plant disease prediction result">
+    <div class="prediction-glow"></div>
+    <div class="prediction-image-top">
+      <img src="{{ image_url }}" alt="Uploaded leaf image" class="prediction-leaf-image-top" />
+    </div>
+    <div class="prediction-details-section">
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-leaf"></i>
+          <span>Crop</span>
+        </div>
+        <div class="section-content crop-name">
+          {{ prediction.crop_name if prediction.crop_name is defined else 'N/A' }}
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-bug"></i>
+          <span>Disease</span>
+        </div>
+        <div class="section-content disease-name">
+          {{ prediction.disease_name if prediction.disease_name is defined else 'N/A' }}
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-exclamation-circle"></i>
+          <span>Cause</span>
+        </div>
+        <div class="section-content cause-text">
+          {{ prediction.cause if prediction.cause is defined else 'N/A' }}
+        </div>
+      </div>
+      <div class="result-section">
+        <div class="section-title">
+          <i class="fa fa-medkit"></i>
+          <span>How to Prevent / Cure</span>
+        </div>
+        <div class="section-content prevention-text">
+          {{ prediction.prevention if prediction.prevention is defined else 'N/A' }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
