@@ -30,10 +30,7 @@ dist/
 build/
 
 # Model files (optional, if you don't want to share them)
-models/
-app/models/
+# app/models/
 
 # Data files (optional, if you don't want to share them)
-Data-processed/
-Data-raw/
-app/Data/
+# app/Data/
