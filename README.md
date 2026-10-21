@@ -62,6 +62,11 @@ Harvestify/app/
 └── Runtime.txt           # Python version for deployment
 ```
 
+## CropGuard Demo Video
+
+Watch the demo to see CropGuard detect crop leaf diseases and provide recommendations.
+
+[▶ Watch CropGuard Demo on Google Drive]  https://drive.google.com/file/d/1oenvp7HzWpWDlJeyusa2EA0MSW6PwXh1/view?usp=sharing
 ## Credits
 - Built with [Flask](https://flask.palletsprojects.com/), [PyTorch](https://pytorch.org/), and [scikit-learn](https://scikit-learn.org/)
 - UI inspired by modern glassmorphism design
